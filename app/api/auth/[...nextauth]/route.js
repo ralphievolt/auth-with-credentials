@@ -26,7 +26,7 @@ export const authOptions = {
           if (!passwordsMatch) {
             return null;
           }
-
+          console.log({ user });
           return user;
         } catch (error) {
           console.log("Error: ", error);
@@ -34,9 +34,27 @@ export const authOptions = {
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
+  // session: {
+  //   strategy: "jwt",
+  // },
+
+  callbacks: {
+    async jwt({ token, user }) {
+      /* Step 1: update the token based on the user object */
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      /* Step 2: update the session.user based on the token object */
+      if (token && session.user) {
+        session.user.role = token.role;
+      }
+      return session;
+    },
   },
+
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/",
